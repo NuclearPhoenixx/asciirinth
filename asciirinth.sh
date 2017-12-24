@@ -1,0 +1,167 @@
+#!/bin/bash
+# Import GUI
+source $(dirname $0)/gui.sh
+
+# OUTPUT THE MAP AND WAIT FOR KEY STROKE
+function output {
+
+  clear
+  echo -e "${COLOR_hint} ASCIIrinth Map: $mapfile${COLOR_reset}\n"
+  local j=0
+  while [ "$j" -le "$i" ]
+  do
+
+    local outputLevel="level$j"
+    echo -e "${COLOR_labyrinth}${!outputLevel}"
+    ((j++))
+
+  done
+  echo -e " ${COLOR_hint}Get to the '$WIN_char' to complete this map!${COLOR_reset}"
+
+}
+
+# THIS MANAGES MOVEMENT AND ALSO BORDERS
+function input {
+
+  case $control in
+    $KEY_left)
+        local moveToX=$((CHAR_X - 1))
+        local moveToY="$CHAR_Y";;
+    $KEY_right)
+        local moveToX=$((CHAR_X + 1))
+        local moveToY="$CHAR_Y";;
+    $KEY_down)
+        local moveToY=$((CHAR_Y +1 ))
+        local moveToX="$CHAR_X";;
+    $KEY_up)
+        local moveToY=$((CHAR_Y - 1))
+        local moveToX="$CHAR_X";;
+    $KEY_escape) # IF PAUSE WAS PRESSED
+        placeholder="escape"
+        return;;
+    *) # ELSE
+        placeholder="gotoOutput"
+        return
+  esac
+
+  #PlayerPosition="array$CHAR_Y[$CHAR_X]"
+  local nextPosition="array$moveToY[$moveToX]"
+  case ${!nextPosition} in
+    "$WIN_char")
+        placeholder="win";;
+    " ") # SPACE
+        IFS= read "array$CHAR_Y[$CHAR_X]" <<< " "
+        IFS= read "array$moveToY[$moveToX]" <<< "$PLAYER_char"
+        CHAR_X="$moveToX"
+        CHAR_Y="$moveToY"
+        placeholder=;;
+    *)  placeholder="gotoOutput"
+  esac
+
+}
+
+# SET THE OUTPUT VARS FOR FUNCTION OUTPUT() FROM THE READ MAP FILE
+function render_map {
+
+  local j=0
+  while [ "$j" -le "$i" ]
+  do
+
+    local arr="array$j[@]"
+    for lvl in "${!arr}"
+    do
+
+      local tmp+="$lvl"
+
+    done
+    export "level$j=$tmp"
+    local tmp=
+    ((j++))
+
+  done
+
+}
+
+# LOCATE THE PLAYER ASCII CHARACTER DEFINED IN $PLAYER_char
+function locate_player {
+
+  local j=0
+  while [ "$j" -le "$i" ]
+  do
+
+    local arr="array$j[@]"
+    local a=0
+    for searchPos in "${!arr}"
+    do
+
+      if [ "$searchPos" = "$PLAYER_char" ]
+      then
+        CHAR_X="$a"
+        CHAR_Y="$j"
+        return
+      else
+        ((a++))
+      fi
+
+    done
+    ((j++))
+  done
+
+}
+
+# READ FROM THE VAR $MAPFILE
+function read_map {
+
+  i=0
+  local var=
+  while IFS= read -r "var"
+  do
+    IFS=',' read -r -a "array$i" <<< "$var"
+    ((i++))
+  done < "$mapfile"
+
+}
+
+function restart {
+  # Get script location for restart
+  ScriptLoc=$(readlink -f "$0")
+  exec "$ScriptLoc"
+}
+
+
+############################################
+#####  END  OF  FUNCTION  DEFINITIONS  #####
+############################################
+# TRIGGER GUI
+gui
+# After START finished start the game by preparing the map
+read_map
+locate_player
+render_map
+
+# After initialization do this endlessly
+while true
+do
+
+  output
+  trap "restart" SIGINT
+  read -s -n1 control
+  input
+  case $placeholder in
+    gotoOutput)
+        output;;
+    win)
+        echo -e "\n\n\033[1;35m ! YOU WIN !${COLOR_reset}\n"
+        read -r -s -n1
+        restart;;
+    escape)
+        ingamemenu
+        if [ "$ingamemenu_outcome" = "exit" ]
+        then
+          restart
+        fi;;
+    *) # ELSE
+        render_map
+        output
+  esac
+done
