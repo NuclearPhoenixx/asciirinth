@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Import GUI
 source $(dirname $0)/gui
 
