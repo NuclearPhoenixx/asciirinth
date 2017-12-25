@@ -373,7 +373,7 @@ function gui {
                 select_map;;
               3)
                 # CREATE NEW MAP
-                source $(dirname $0)/map-maker.sh;;
+                source $(dirname $0)/map-maker;;
               4)
                 # GOTO OPTIONS
                 options;;
