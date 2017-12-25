@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 clear
 echo -e "\n${COLOR_menuHeader} ASCIIrinth Map Maker${COLOR_reset}\n"
 echo " In order for this to work you need to make a txt file and 'draw' your map with ASCII characters in any external editor."
