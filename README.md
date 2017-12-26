@@ -15,13 +15,13 @@ You can already load and play any compatible map or create your own maps with th
 
 The cool thing about this game is that you can play it on your graphical installation, on an SSH server, on a headless server, on any OS that supports BASH, etc. - without any installation or any extravagant requirements.
 
-What's ASCIIrinth **not**...
+**What's ASCIIrinth not...**
 - a fancy graphical game
 - an action game
 - a system-demanding 60GB AAA title
 - (very) thrilling
 
-What **is** ASCIIrinth then?
+**What is ASCIIrinth then?**
 - a puzzle game (think!)
 - straightforward
 - tiny in size and requirements
