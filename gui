@@ -256,6 +256,7 @@ function options {
                   read -p $'\e[1;33m  # Enter your PAUSE key: \e[0m' pauseKey2Be
                   #echo -e "\033[0m"
                   tput civis -- invisible
+                  ## TODO: CHECK IF PAUSE KEY IS AN ARROW KEY OR WASD
                   if ! [ "$pauseKey2Be" = "" ]
                   then
                     sed -i "2s/.*/$pauseKey2Be/" settings.config
