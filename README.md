@@ -53,7 +53,7 @@ If you're using Linux and didn't strip away half of the system, this will pose n
 
 ## Making Maps
 
-You can easily create maps if you open an editor of your choice, create a new txt file and just type in every character that the map should contain. Every character and line you type will be taken one-to-one into the map file. There are no special characters or anything similar. This also means that the map maker will, in the process of generating the map file, not make any special spacing or converting.
+You can easily create maps if you open an editor of your choice, create a new txt file and just type in every character that the map should contain. Every character and line you type will be taken one-to-one into the map file. There are no special characters or anything similar. This also means that the map maker will, in the process of generating the map file, not make any special spacing or converting. After saving the txt file, start the game and head to `'Create Map'`, there you will see all of this information and be able to convert it to the appropriate .map format.
 
 Once again, this will convert any txt file to a compatible .map file for the game. Your map will be shown exactly like you specified it to look like!
 
