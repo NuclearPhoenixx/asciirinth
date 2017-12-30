@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# TODO #
+# 1) Credits
+# 2) Rewrite this crude menu
+########
+
 # VERSION CODE
 version=1.0.0
 # Color settings
