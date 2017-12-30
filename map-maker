@@ -16,7 +16,10 @@ tput civis -- invisible
 clear
 
 mapname="maps/$mapname.map"
-## TODO: CHECK IF FOLDER "maps" EXISTS AND CREATE IT IF NOT
+if ! [ -d "maps" ]
+then
+  mkdir maps
+fi
 
 # Really crude code, but hey... if it works.
 i=0
