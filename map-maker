@@ -55,5 +55,10 @@ do
 
 done
 
+# TODO #
+# 1) Check if the newly created file exists, then print "successfully",
+#    otherwise print an error message.
+########
+
 echo -e "\n\033[0;32m Your map has been successfully exported to '$mapname'.\033[0m\n"
 read -s -n1 -p " Press any key to continue..."
