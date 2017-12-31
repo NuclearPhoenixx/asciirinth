@@ -1,4 +1,4 @@
-# ASCIIrinth
+# ASCIIrinth [![View ASCIIrinth on Indie DB](http://media.indiedb.com/images/global/indiedb.png)](http://www.indiedb.com/games/asciirinth)
 ![issues](https://img.shields.io/github/issues/Phoenix1747/ASCIIrinth.svg?style=flat-square) ![open pr](https://img.shields.io/github/issues-pr-raw/phoenix1747/ASCIIrinth.svg?style=flat-square) ![GitHub last commit](https://img.shields.io/github/last-commit/phoenix1747/ASCIIrinth.svg?style=flat-square)
 
 In ASCIIrinth your are finding your way through a labyrinth of ASCII characters to get from point A to point B. Why would you do that? Well, why not!
