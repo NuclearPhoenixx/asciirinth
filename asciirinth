@@ -155,8 +155,9 @@ do
         read -r -s -n1
         restart;;
     escape)
-        ingamemenu
-        if [ "$ingamemenu_outcome" = "exit" ]
+        ingamePause
+        gui
+        if [ "$exitVar" = "exit" ]
         then
           restart
         fi;;
