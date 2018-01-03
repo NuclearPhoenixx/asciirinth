@@ -4,9 +4,9 @@ echo -e "\n${COLOR_menuHeader} ASCIIrinth Map Maker${COLOR_reset}\n"
 echo " In order for this to work you need to make a txt file and 'draw' your map with ASCII characters in any external editor."
 echo " This will convert it to a compatible .map file for the game. Your map will be shown exactly like you specified it to look like."
 echo -e  "\n Requirements:"
-echo "  *) One unique character posing as the player."
-echo "  *) One unique character for the goal."
-echo "  *) Mark accessible places with a SPACEs."
+echo "  *) The player character is defined by an 'O' (capital 'o'!)."
+echo "  *) The goal is defined by the character '*'."
+echo "  *) Accessible places are built with SPACEs."
 echo -e "  *) At the end of the file should be a blank line otherwise it will not load correctly.\n\n"
 trap "tput civis -- invisible; return" SIGINT
 tput cnorm -- normal
@@ -21,7 +21,7 @@ then
   mkdir maps
 fi
 
-# Really crude code, but hey... if it works.
+# TO-DO: FRESHEN UP THIS CODE AND FIX THE STRANGE MAP CONVERSIONS
 i=0
 while IFS= read -r "line"
 do
@@ -55,10 +55,14 @@ do
 
 done
 
-# TODO #
-# 1) Check if the newly created file exists, then print "successfully",
-#    otherwise print an error message.
-########
-
-echo -e "\n\033[0;32m Your map has been successfully exported to '$mapname'.\033[0m\n"
+# Finalization
+if find "$mapname">/dev/null 2>&1
+then
+  echo -e "\n\033[0;32m Your map has been successfully exported to '$mapname'.\033[0m\n"
+else
+  echo -e "\n\033[1;31m An error occured. Please try again later.\033[0m\n"
+fi
 read -s -n1 -p " Press any key to continue..."
+
+# unset some vars again to not (potentially) mess up the core game
+i=; line=; char=; mapname=

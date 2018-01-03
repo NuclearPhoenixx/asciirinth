@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-# TODO #
-# 1) Credits
-# 2) Rewrite this crude menu
-########
+### PLEASE DON'T LOOK AT THIS FILE, IT'S UGLY ###
+### THIS IS JUST LEFT HERE UNTIL I FINISHED REWRITING IT ###
 
 # VERSION CODE
 version=1.0.0

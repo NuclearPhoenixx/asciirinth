@@ -1,19 +1,31 @@
 #!/usr/bin/env bash
 
-#################
-#     TO-DO     #
-# 1) Credits    #
-#################
+####################################
+#              TO-DO               #
+# 1) Credits                       #
+# 2) Option to en-/disable mods    #
+# 3) To-Do comments in code        #
+####################################
+
 
 ####################################
-#           WHAT CHANGED           #
-#                                  #
-# *) Easier map selection          #
-# *) Fixes and MANY optimizations  #
+#        WHAT HAS BEEN DONE        #
+# 1) Performance improvements.     #
+# 2) Fixes and optimizations.      #
+# 3) Rewrote gui to make it more   #
+#    modular.                      #
+# 4) Map selection is now much     #
+#    nicer.                        #
+# 5) You can customize the goal    #
+#    and player characters.        #
+# 6) The map-maker now verifies    #
+#    if a map has indeed been      #
+#    created.                      #
 ####################################
+
 
 # VERSION CODE
-version=1.0.2
+version=1.1.0
 # Color settings
 COLOR_hint="\033[1;33m"
 COLOR_labyrinth="\033[0;32m"
@@ -40,7 +52,7 @@ COLOR_reset="\033[0m"
 # Stuff to do pre-start like checking requirements
 if ! [ "${BASH_VERSION:0:1}" -ge 4 ]
 then
-  echo -e "\033[0;31mYou need BASH version 4+ to play this game! \033[0m"
+  echo -e "\033[0;31mYou need at least BASH version 4.0 to play this game! \033[0m"
   exit 1
 fi
 # CHECK IF SED EXISTS (USED FOR SETTINGS MANAGEMENT)
@@ -78,7 +90,7 @@ function query_options {
   OPTIONS_pauseKey=$(sed -n 2p settings.config)
   OPTIONS_map=$(sed -n 3p settings.config)
   OPTIONS_playerChar=$(sed -n 4p settings.config)
-  OPTIONS_winChar=$(sed -n 5p settings.config)
+  OPTIONS_goalChar=$(sed -n 5p settings.config)
   # The standard keys to move with
   if [ "$OPTIONS_controls" = "WASD" ]
   then
@@ -97,10 +109,9 @@ function query_options {
   # The default map file
   mapfile="maps/$OPTIONS_map"
   # The ASCII letter that's used to show the players location
-  # This must correspond with an unique character on the map
   CHAR_player="$OPTIONS_playerChar"
-  # Character that implies the goal
-  CHAR_goal="$OPTIONS_winChar"
+  # Character that poses as the goal that must be reached to win
+  CHAR_goal="$OPTIONS_goalChar"
 }
 
 ### EXIT WHEN CATCHING INTERRUPT SIGNAL OR MANUAL EXIT ###
@@ -124,12 +135,13 @@ function ingamePause_do {
 
 ### OPTIONS MENU ###
 function options {
-  menu=(" [Options]" " [+] Controls: $OPTIONS_controls" " [+] PAUSE Key: '$OPTIONS_pauseKey'"
-        " [+] Player Character: '$CHAR_player'" " [+] Goal Character: '$CHAR_goal'" " [~] Return to menu")
+  menu=(" [Options]" " [+] Controls: $OPTIONS_controls" " [+] PAUSE Key:  $OPTIONS_pauseKey"
+        " [+] Player Character:  $CHAR_player" " [+] Goal Character:  $CHAR_goal" " [~] Return to menu")
   call=options_do
 }
 function options_do {
   local tmpvar= #reset tmpvar for changing input
+  trap "tput civis -- invisible; return" SIGINT
   case $SELECT_menu in
       1)
         if [ "$OPTIONS_controls" = "ARROWS" ]
@@ -137,50 +149,50 @@ function options_do {
           sed -i '1s/.*/WASD/' settings.config
         else
           sed -i '1s/.*/ARROWS/' settings.config
-        fi
+        fi;;
       2)
         echo -e "\n"
         tput cnorm -- normal
-        read -p $'\e[1;33m  # Enter your PAUSE key: \e[0m' tmpvar
-        #echo -e "\033[0m"
+        read -p $'\e[1;33m [?] Enter your PAUSE key: \e[0m' tmpvar
         tput civis -- invisible
-        ## TO-DO: CHECK IF PAUSE KEY IS AN ARROW KEY OR WASD
-        if [ $tmpvar ]
+        # CHECK IF VAR IS SET AND ONLY CONTAINS OF LETTERS
+        if [ $tmpvar ] && [[ "$tmpvar" =~ [a-zA-Z] ]]
         then
-          sed -i "2s/.*/$tmpvar/" settings.config
-        fi
-      # NEW: OPTIONS FOR GOAL AND PLAYER CHARACTER.
-      #      BUT IF CHANGED, SEARCH OLD CHARACTERS IN ALL MAPS
-      #      AND CHANGE TO NEW ONES TO AVOID BRAKING MAPS.
+          # CHECK IF ONE OF THE CONTROL KEYS
+          if ! echo "$tmpvar" | grep -E 'w|a|s|d|A|B|C|D'>/dev/null 2>&1
+          then
+              sed -i "2s/.*/$tmpvar/" settings.config
+          else
+            echo -e "\033[1;31mYour pause key cannot be one of the control keys! \033[0m"
+          fi
+        fi;;
       3)
         echo -e "\n"
         tput cnorm -- normal
-        read -p $'\e[1;33m  # Enter your custom player character: \e[0m' tmpvar
-        #echo -e "\033[0m"
+        read -p $'\e[1;33m [?] Enter your custom player character: \e[0m' tmpvar
         tput civis -- invisible
-        ## TO-DO: CHECK IF PAUSE KEY IS AN ARROW KEY OR WASD
-        if [ $tmpvar ]
+        ## TO-DO: CHECK IF PLAYER CHAR IS REALLY UNIQUE
+        if [ "$tmpvar" ]
         then
-          sed -i "2s/.*/$tmpvar/" settings.config
-        fi
+          sed -i "4s/.*/$tmpvar/" settings.config
+          find 'maps' -name '*.map' -exec sed -i "s/$CHAR_player/$tmpvar/g" {} \;
+        fi;;
       4)
         echo -e "\n"
         tput cnorm -- normal
-        read -p $'\e[1;33m  # Enter your custom goal character: \e[0m' tmpvar
-        #echo -e "\033[0m"
+        read -p $'\e[1;33m [?] Enter your custom goal character: \e[0m' tmpvar
         tput civis -- invisible
-        ## TO-DO: CHECK IF PAUSE KEY IS AN ARROW KEY OR WASD
-        if [ $tmpvar ]
+        ## TO-DO: CHECK IF GOAL CHAR IS REALLY UNIQUE
+        if [ "$tmpvar" ]
         then
-          sed -i "2s/.*/$tmpvar/" settings.config
-        fi
-      # END OF TO-DO
-      #########################################################
+          sed -i "5s/.*/$tmpvar/" settings.config
+          find 'maps' -name '*.map' -exec sed -i "s/$CHAR_goal/$tmpvar/g" {} \;
+        fi;;
       5) mainMenu; return;;
-
-      query_options
-      options;;
   esac
+
+  query_options
+  options
 }
 
 ### MAP SELECTION ###
@@ -293,7 +305,7 @@ function gui {
     fi
 
     build
-    trap "exit_program" SIGINT
+    trap "if [ "$call" = "mainMenu_do" ]; then exit_program; fi" SIGINT
     read -s -n1 keyInput
     case $keyInput in
         A)

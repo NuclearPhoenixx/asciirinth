@@ -29,6 +29,7 @@ function output {
 # THIS MANAGES MOVEMENT AND ALSO BORDERS
 function input {
 
+  placeholder=
   case $control in
     $KEY_left)
         local moveToX=$((CHAR_X - 1))
@@ -45,23 +46,19 @@ function input {
     $KEY_escape) # IF PAUSE WAS PRESSED
         placeholder="escape"
         return;;
-    *) # ELSE
-        placeholder="gotoOutput"
-        return
+    *) return;;
   esac
 
   #PlayerPosition="array$CHAR_Y[$CHAR_X]"
   local nextPosition="array$moveToY[$moveToX]"
   case ${!nextPosition} in
-    $CHAR_goal)
+    "$CHAR_goal")
         placeholder="win";;
     " ") # SPACE
         IFS= read "array$CHAR_Y[$CHAR_X]" <<< " "
         IFS= read "array$moveToY[$moveToX]" <<< "$CHAR_player"
         CHAR_X="$moveToX"
-        CHAR_Y="$moveToY"
-        placeholder=;;
-    *)  placeholder="gotoOutput"
+        CHAR_Y="$moveToY";;
   esac
 
 }
@@ -130,8 +127,11 @@ function read_map {
 
 function restart {
   # Get script location for restart
-  ScriptLoc=$(readlink -f "$0")
-  exec "$ScriptLoc"
+  #ScriptLoc=$(readlink -f "$0")
+  #exec "$ScriptLoc"
+
+  # TEMP FIX FOR ISSUE #4
+  ./$(basename $0) && exit 0
 }
 
 
@@ -154,8 +154,6 @@ do
   read -s -n1 control
   input
   case $placeholder in
-    gotoOutput)
-        output;;
     win)
         echo -e "\n\n\033[1;35m ! YOU WIN !${COLOR_reset}\n"
         read -r -s -n1

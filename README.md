@@ -59,7 +59,7 @@ Once again, this will convert any txt file to a compatible .map file for the gam
 
 **Requirements:**
 
-* For the player character, provide an "O" (capital "o"!).
+* The player character is defined by an "O" (capital "o"!).
 * The goal is defined by the character "*".
 * Accessible space is created with SPACEs.
 * At the end of the file should be a blank line otherwise it won't load correctly later on.
