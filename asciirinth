@@ -2,6 +2,12 @@
 # Import GUI
 source $(dirname $0)/gui
 
+#######################
+#        TO DO        #
+# 1) Mod support      #
+#######################
+
+
 # OUTPUT THE MAP AND WAIT FOR KEY STROKE
 function output {
 
@@ -16,7 +22,7 @@ function output {
     ((j++))
 
   done
-  echo -e " ${COLOR_hint}Get to the '$WIN_char' to complete this map!${COLOR_reset}"
+  echo -e " ${COLOR_hint}Get to the '$CHAR_goal' to complete this map!${COLOR_reset}"
 
 }
 
@@ -47,11 +53,11 @@ function input {
   #PlayerPosition="array$CHAR_Y[$CHAR_X]"
   local nextPosition="array$moveToY[$moveToX]"
   case ${!nextPosition} in
-    "$WIN_char")
+    $CHAR_goal)
         placeholder="win";;
     " ") # SPACE
         IFS= read "array$CHAR_Y[$CHAR_X]" <<< " "
-        IFS= read "array$moveToY[$moveToX]" <<< "$PLAYER_char"
+        IFS= read "array$moveToY[$moveToX]" <<< "$CHAR_player"
         CHAR_X="$moveToX"
         CHAR_Y="$moveToY"
         placeholder=;;
@@ -82,7 +88,7 @@ function render_map {
 
 }
 
-# LOCATE THE PLAYER ASCII CHARACTER DEFINED IN $PLAYER_char
+# LOCATE THE PLAYER ASCII CHARACTER DEFINED IN $CHAR_player
 function locate_player {
 
   local j=0
@@ -94,7 +100,7 @@ function locate_player {
     for searchPos in "${!arr}"
     do
 
-      if [ "$searchPos" = "$PLAYER_char" ]
+      if [ "$searchPos" = "$CHAR_player" ]
       then
         CHAR_X="$a"
         CHAR_Y="$j"
@@ -134,7 +140,7 @@ function restart {
 ############################################
 # TRIGGER GUI
 gui
-# After START finished start the game by preparing the map
+# After the GUI finished start the game by preparing the map
 read_map
 locate_player
 render_map

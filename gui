@@ -5,6 +5,13 @@
 # 1) Credits    #
 #################
 
+####################################
+#           WHAT CHANGED           #
+#                                  #
+# *) Easier map selection          #
+# *) Fixes and MANY optimizations  #
+####################################
+
 # VERSION CODE
 version=1.0.2
 # Color settings
@@ -33,37 +40,29 @@ COLOR_reset="\033[0m"
 # Stuff to do pre-start like checking requirements
 if ! [ "${BASH_VERSION:0:1}" -ge 4 ]
 then
-  echo -e "\033[0;31mYou need BASH version 4+ to play this game!\033[0m"
+  echo -e "\033[0;31mYou need BASH version 4+ to play this game! \033[0m"
   exit 1
 fi
 # CHECK IF SED EXISTS (USED FOR SETTINGS MANAGEMENT)
-sed --help >/dev/null 2>&1
-if ! [ $? = 0 ]
-then
-  echo -e "\033[0;31mCould not find command 'sed'. Unable to start!\033[0m"
-  exit 1
-fi
-# CHECK IF FIND UTILS EXISTS (USED FOR MAP SELECTION)
-find --help >/dev/null 2>&1
-if ! [ $? = 0 ]
-then
-  echo -e "\033[0;31mCould not find command 'find'. Unable to start!\033[0m"
-  exit 1
-fi
+sed --help >/dev/null 2>&1 || {
+  echo -e "\033[1;31mError looking for command 'sed'. Unable to start! \033[0m";
+  exit 1;}
+# CHECK IF FIND UTILS EXISTS (USED FOR INDEXING MAPS)
+find --help >/dev/null 2>&1 || {
+  echo -e "\033[1;31mError looking for command 'find'. Unable to start! \033[0m";
+  exit 1;}
 # CHECK IF GREP EXISTS (USED IN MAP SELECTION)
-grep --help >/dev/null 2>&1
-if ! [ $? = 0 ]
-then
-  echo -e "\033[0;31mCould not find command 'grep'. Unable to start!\033[0m"
-  exit 1
-fi
+grep --help >/dev/null 2>&1 || {
+  echo -e "\033[1;31mError looking for command 'grep'. Unable to start! \033[0m";
+  exit 1;}
 # CHECK IF SETTINGS FILE EXISTS
-find settings.config >/dev/null 2>&1
-if ! [ $? = 0 ]
-then
-  echo -e "\033[0;31mThe config file seems to be missing! Please re-download the game.\033[0m"
-  exit 1
-fi
+find settings.config >/dev/null 2>&1 || {
+  # if non-existant, write a new settings file with standard values
+  echo "ARROWS">settings.config;
+  echo "p">>settings.config;
+  echo "default.map">>settings.config;
+  echo "O">>settings.config;
+  echo "*">>settings.config;}
 ## END OF TEST
 
 
@@ -81,7 +80,7 @@ function query_options {
   OPTIONS_playerChar=$(sed -n 4p settings.config)
   OPTIONS_winChar=$(sed -n 5p settings.config)
   # The standard keys to move with
-  if [ $OPTIONS_controls = "WASD" ]
+  if [ "$OPTIONS_controls" = "WASD" ]
   then
     KEY_right="d"
     KEY_left="a"
@@ -99,9 +98,9 @@ function query_options {
   mapfile="maps/$OPTIONS_map"
   # The ASCII letter that's used to show the players location
   # This must correspond with an unique character on the map
-  PLAYER_char="$OPTIONS_playerChar"
+  CHAR_player="$OPTIONS_playerChar"
   # Character that implies the goal
-  WIN_char="$OPTIONS_winChar"
+  CHAR_goal="$OPTIONS_winChar"
 }
 
 ### EXIT WHEN CATCHING INTERRUPT SIGNAL OR MANUAL EXIT ###
@@ -111,7 +110,6 @@ function exit_program {
   exit 0
 }
 
-
 ### INGAME MENU ###
 function ingamePause {
   menu=(" [PAUSE]" " [*] Resume" " [~] Exit")
@@ -120,16 +118,18 @@ function ingamePause {
 function ingamePause_do {
   case $SELECT_menu in
       1) exitVar="resume";;
-      2) exitVar="exit"
+      2) exitVar="exit";;
   esac
 }
 
 ### OPTIONS MENU ###
 function options {
-  menu=(" [Options]" " [+] Controls: $OPTIONS_controls" " [+] PAUSE Key: '$OPTIONS_pauseKey'" " [~] Return to menu")
+  menu=(" [Options]" " [+] Controls: $OPTIONS_controls" " [+] PAUSE Key: '$OPTIONS_pauseKey'"
+        " [+] Player Character: '$CHAR_player'" " [+] Goal Character: '$CHAR_goal'" " [~] Return to menu")
   call=options_do
 }
 function options_do {
+  local tmpvar= #reset tmpvar for changing input
   case $SELECT_menu in
       1)
         if [ "$OPTIONS_controls" = "ARROWS" ]
@@ -138,23 +138,89 @@ function options_do {
         else
           sed -i '1s/.*/ARROWS/' settings.config
         fi
-        query_options
-        options;;
       2)
         echo -e "\n"
         tput cnorm -- normal
-        read -p $'\e[1;33m  # Enter your PAUSE key: \e[0m' pauseKey2Be
+        read -p $'\e[1;33m  # Enter your PAUSE key: \e[0m' tmpvar
         #echo -e "\033[0m"
         tput civis -- invisible
         ## TO-DO: CHECK IF PAUSE KEY IS AN ARROW KEY OR WASD
-        if ! [ "$pauseKey2Be" = "" ]
+        if [ $tmpvar ]
         then
-          sed -i "2s/.*/$pauseKey2Be/" settings.config
+          sed -i "2s/.*/$tmpvar/" settings.config
         fi
-        query_options
-        options;;
-      3) mainMenu
+      # NEW: OPTIONS FOR GOAL AND PLAYER CHARACTER.
+      #      BUT IF CHANGED, SEARCH OLD CHARACTERS IN ALL MAPS
+      #      AND CHANGE TO NEW ONES TO AVOID BRAKING MAPS.
+      3)
+        echo -e "\n"
+        tput cnorm -- normal
+        read -p $'\e[1;33m  # Enter your custom player character: \e[0m' tmpvar
+        #echo -e "\033[0m"
+        tput civis -- invisible
+        ## TO-DO: CHECK IF PAUSE KEY IS AN ARROW KEY OR WASD
+        if [ $tmpvar ]
+        then
+          sed -i "2s/.*/$tmpvar/" settings.config
+        fi
+      4)
+        echo -e "\n"
+        tput cnorm -- normal
+        read -p $'\e[1;33m  # Enter your custom goal character: \e[0m' tmpvar
+        #echo -e "\033[0m"
+        tput civis -- invisible
+        ## TO-DO: CHECK IF PAUSE KEY IS AN ARROW KEY OR WASD
+        if [ $tmpvar ]
+        then
+          sed -i "2s/.*/$tmpvar/" settings.config
+        fi
+      # END OF TO-DO
+      #########################################################
+      5) mainMenu; return;;
+
+      query_options
+      options;;
   esac
+}
+
+### MAP SELECTION ###
+function selectMap {
+  menu=(" [Map Selection]\n\n Please select one of these maps:")
+  mapArray=("") # GET A CLEAN ARRAY WITH MAPS FOR SELECTION PROCESS
+  for map in $(find maps/*.map -printf '\n%f')
+  do
+    menu+=("  $map")
+    mapArray+=("$map")
+  done
+  menu+=(" [~] Cancel")
+  call=selectMap_do
+}
+function selectMap_do {
+  if [ $SELECT_menu = ${#mapArray[@]} ] # The last entry (cancel)
+  then
+    mainMenu
+  else
+    local mapSelection="${mapArray[$SELECT_menu]}"
+
+    if grep -q "$CHAR_player" "maps/$mapSelection" && grep -q "$CHAR_goal" "maps/$mapSelection"
+    then
+      : # Just continue to the part after the if.
+    elif grep -q "*" "maps/$mapSelection" && grep -q "O" "maps/$mapSelection"
+    then
+      sed -i -e "s/*/$CHAR_goal/g" "maps/$mapSelection"
+      sed -i -e "s/O/$CHAR_player/g" "maps/$mapSelection"
+    else
+      echo -e "\033[1;31m\n The map file seems broken! Please choose another one.${COLOR_reset}"
+      read -n1 -r -s
+      return
+    fi
+
+    sed -i "3s/.*/$mapSelection/" settings.config
+    echo -e "\033[1;32m\n Your default map has been successfully changed to $mapSelection!${COLOR_reset}"
+    read -n1 -r -s
+    query_options
+  fi
+
 }
 
 ### MAIN MENU ###
@@ -165,10 +231,10 @@ function mainMenu {
 function mainMenu_do {
   case $SELECT_menu in
       1) exitVar="exit";;
-      2) select_map;; # <---- TOOD
+      2) selectMap;;
       3) source $(dirname $0)/map-maker;;
       4) options;;
-      5) exit_program
+      5) exit_program;;
   esac
 }
 
@@ -218,12 +284,12 @@ function gui {
     max=$((length - 1))
 
     # CHECK IF MENU HAS CHANGED
-    if ! [ "$max_past" = "$max" ]
+    if ! [ "$call_past" = "$call" ]
     then
       # Auto-select first entry
       SELECT_menu=1
       # store the old max again for further comparison
-      max_past="$max"
+      call_past="$call"
     fi
 
     build
@@ -251,13 +317,15 @@ function gui {
             if [ $exitVar ]
             then
               return
-            fi
+            fi;;
     esac
   done
 }
 
 # START BY GETTING THE OPTIONS
 query_options
+# hide cursor
+tput civis -- invisible
 
 # AT FIRST GUI START THE MAIN MENU WILL POP-UP #
 mainMenu

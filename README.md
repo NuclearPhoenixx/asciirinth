@@ -33,7 +33,7 @@ The cool thing about this game is that you can play it on your graphical install
 First things first, there is no such thing as installation. Since this is the case, here you have the instructions on how to get it to play:
 
 1. Head to the [release section](https://github.com/Phoenix1747/asciirinth/releases) and grab the latest release.
-2. Unzip it and enter the newly created directory. 
+2. Unzip it and enter the newly created directory.
 3. Type in `bash asciirinth` **or** `chmod +x asciirinth` and then `./asciirinth`.
 4. Optional: Put any custom maps in the folder `maps`.
 5. Enjoy!
@@ -59,8 +59,8 @@ Once again, this will convert any txt file to a compatible .map file for the gam
 
 **Requirements:**
 
-* Any one unique character posing as the player.
-* Any one unique character for the goal.
+* For the player character, provide an "O" (capital "o"!).
+* The goal is defined by the character "*".
 * Accessible space is created with SPACEs.
 * At the end of the file should be a blank line otherwise it won't load correctly later on.
 
