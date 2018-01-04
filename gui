@@ -7,26 +7,7 @@ version=1.1.0
 ####################################
 #              TO-DO               #
 # 1) Credits                       #
-# 2) Option to en-/disable mods    #
-# 3) To-Do comments in code        #
-####################################
-
-
-####################################
-#        WHAT HAS BEEN DONE        #
-# 1) Performance improvements.     #
-# 2) Fixes and optimizations.      #
-# 3) Rewrote gui to make it more   #
-#    modular.                      #
-# 4) Map selection is now much     #
-#    nicer.                        #
-# 5) You can customize the goal    #
-#    and player characters.        #
-# 6) The map-maker now verifies    #
-#    if a map has indeed been      #
-#    created.                      #
-# 7) Added installer               #
-# 8) Added mod support             #
+# 2) To-Do comments in code        #
 ####################################
 
 # Color settings
