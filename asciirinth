@@ -4,12 +4,15 @@ source $(dirname $0)/map-maker
 source $(dirname $0)/gui
 
 # MODS, yay | Only do this if mods are enabled
+# Security issue, because any shell script in the folder is executed ...
+# ... but it's the player's responsibility to not blindly download ...
+# ... stuff from the internet, as always of course.
 if [ "$OPTIONS_mods" = "yes" ]
 then
   # Only do if mods directory exists
   if [ -d "$(dirname $0)/mods" ]
   then
-    for mod in "$(find *.sh)"
+    for mod in "$(find mods/*.sh)"
     do
       source $(dirname $0)/$mod
     done
