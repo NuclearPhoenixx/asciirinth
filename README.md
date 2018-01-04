@@ -44,7 +44,7 @@ First things first, there is no such thing as installation. Since this is the ca
 
 ASCIIrinth does indeed have some requirements. However, those should be absolutely no problem on any reasonably up-to-date system (except Windows, duh).
 
-* BASH 4+
+* BASH 4 or above
 * sed
 * find
 * grep
