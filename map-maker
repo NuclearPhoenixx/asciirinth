@@ -1,68 +1,69 @@
 #!/usr/bin/env bash
-clear
-echo -e "\n${COLOR_menuHeader} ASCIIrinth Map Maker${COLOR_reset}\n"
-echo " In order for this to work you need to make a txt file and 'draw' your map with ASCII characters in any external editor."
-echo " This will convert it to a compatible .map file for the game. Your map will be shown exactly like you specified it to look like."
-echo -e  "\n Requirements:"
-echo "  *) The player character is defined by an 'O' (capital 'o'!)."
-echo "  *) The goal is defined by the character '*'."
-echo "  *) Accessible places are built with SPACEs."
-echo -e "  *) At the end of the file should be a blank line otherwise it will not load correctly.\n\n"
-trap "tput civis -- invisible; return" SIGINT
-tput cnorm -- normal
-read -p " Specify your txt file [(PATH/)FILE.txt]: " original
-read -p " What name should the map have [NAME]: " mapname
-tput civis -- invisible
-clear
 
-mapname="maps/$mapname.map"
-if ! [ -d "maps" ]
-then
-  mkdir maps
-fi
+function map-maker {
+  clear
+  echo -e "\n${COLOR_menuHeader} ASCIIrinth Map Maker${COLOR_reset}\n"
+  echo " In order for this to work you need to make a txt file and 'draw' your map with ASCII characters in any external editor."
+  echo " This will convert it to a compatible .map file for the game. Your map will be shown exactly like you specified it to look like."
+  echo -e  "\n Requirements:"
+  echo "  *) The player character is defined by an 'O' (capital 'o'!)."
+  echo "  *) The goal is defined by the character '*'."
+  echo "  *) Accessible places are built with SPACEs."
+  echo -e "  *) At the end of the file should be a blank line otherwise it will not load correctly.\n\n"
+  trap "tput civis -- invisible; return" SIGINT
+  tput cnorm -- normal
+  read -p " Specify your txt file [(PATH/)FILE.txt]: " original
+  read -p " What name should the map have [NAME]: " mapname
+  tput civis -- invisible
+  clear
 
-# TO-DO: FRESHEN UP THIS CODE AND FIX THE STRANGE MAP CONVERSIONS
-i=0
-while IFS= read -r "line"
-do
+  local mapname="maps/$mapname.map"
+  if ! [ -d "maps" ]
+  then
+    mkdir maps
+  fi
 
-  echo "$line"
-  while IFS= read -r -n1 "char"
+  # TO-DO: FRESHEN UP THIS CODE AND FIX THE STRANGE MAP CONVERSIONS
+  local i=
+  while IFS= read -r "line"
   do
 
-    tmp+="$char,"
+    echo "$line"
+    while IFS= read -r -n1 "char"
+    do
 
-  done <<< "$line"
+      local tmp+="$char,"
 
-  declare line$i="$tmp"
-  tmp=""
-  ((i++))
+    done <<< "$line"
 
-done < "$original"
+    declare line$i="$tmp"
+    local tmp=
+    ((i++))
 
-j=0
-while [ "$j" -le "$i" ]
-do
+  done < "$original"
 
-  lines="line$j"
-  if [ $j = 0 ]
+  local j=
+  while [ "$j" -le "$i" ]
+  do
+
+    local lines="line$j"
+    if [ $j = 0 ]
+    then
+      echo "${!lines}" > "$mapname"
+    else
+      echo "${!lines}" >> "$mapname"
+    fi
+    ((j++))
+
+  done
+
+  # Finalization
+  if find "$mapname">/dev/null 2>&1
   then
-    echo "${!lines}" > "$mapname"
+    echo -e "\n\033[0;32m Your map has been successfully exported to '$mapname'.\033[0m\n"
   else
-    echo "${!lines}" >> "$mapname"
+    echo -e "\n\033[1;31m An error occured. Please try again later.\033[0m\n"
   fi
-  ((j++))
+  read -s -n1 -p " Press any key to continue..."
 
-done
-
-# Finalization
-if find "$mapname">/dev/null 2>&1
-then
-  echo -e "\n\033[0;32m Your map has been successfully exported to '$mapname'.\033[0m\n"
-else
-  echo -e "\n\033[1;31m An error occured. Please try again later.\033[0m\n"
-fi
-read -s -n1 -p " Press any key to continue..."
-
-# unset some vars again to not (potentially) mess up the core game
-i=; line=; char=; mapname=
+}

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# All the core-functionality that does not deal with the core-gameplay.
+# All functions for the GUI to be executed by the game accordingly.
 
 ####################################
 #              TO-DO               #
@@ -21,6 +23,8 @@
 # 6) The map-maker now verifies    #
 #    if a map has indeed been      #
 #    created.                      #
+# 7) Added installer               #
+# 8) Added mod support             #
 ####################################
 
 
@@ -49,7 +53,10 @@ COLOR_reset="\033[0m"
 # lightcyan="\033[1;36m"
 # white="\033[1;37m"
 
-# Stuff to do pre-start like checking requirements
+# Text that shows up when won
+TEXT_won="\033[1;35m ! YOU WIN !${COLOR_reset}"
+
+# CHECK REQUIREMENTS
 if ! [ "${BASH_VERSION:0:1}" -ge 4 ]
 then
   echo -e "\033[0;31mYou need at least BASH version 4.0 to play this game! \033[0m"
@@ -75,8 +82,7 @@ find settings.config >/dev/null 2>&1 || {
   echo "default.map">>settings.config;
   echo "O">>settings.config;
   echo "*">>settings.config;}
-## END OF TEST
-
+## END OF TESTS
 
 #######################################################
 # FUNCTION DEFINITIONS                                #
@@ -87,10 +93,17 @@ find settings.config >/dev/null 2>&1 || {
 function query_options {
   # Query some stuff from the settings file
   OPTIONS_controls=$(sed -n 1p settings.config)
-  OPTIONS_pauseKey=$(sed -n 2p settings.config)
-  OPTIONS_map=$(sed -n 3p settings.config)
-  OPTIONS_playerChar=$(sed -n 4p settings.config)
-  OPTIONS_goalChar=$(sed -n 5p settings.config)
+  # Pause key
+  KEY_escape=$(sed -n 2p settings.config)
+  # The default map file
+  mapfile="maps/"$(sed -n 3p settings.config)
+  # The ASCII letter that's used to show the players location
+  CHAR_player=$(sed -n 4p settings.config)
+  # Character that poses as the goal that must be reached to win
+  CHAR_goal=$(sed -n 5p settings.config)
+  # Check if mods are enabled
+  OPTIONS_mods=$(sed -n 6p settings.config)
+
   # The standard keys to move with
   if [ "$OPTIONS_controls" = "WASD" ]
   then
@@ -104,15 +117,13 @@ function query_options {
     KEY_down="B"
     KEY_up="A"
   fi
-  # PAUSE KEY
-  KEY_escape=$OPTIONS_pauseKey
-  # The default map file
-  mapfile="maps/$OPTIONS_map"
-  # The ASCII letter that's used to show the players location
-  CHAR_player="$OPTIONS_playerChar"
-  # Character that poses as the goal that must be reached to win
-  CHAR_goal="$OPTIONS_goalChar"
 }
+
+# Some other important code
+# Query options first start
+query_options
+# hide cursor
+tput civis -- invisible
 
 ### EXIT WHEN CATCHING INTERRUPT SIGNAL OR MANUAL EXIT ###
 function exit_program {
@@ -136,7 +147,8 @@ function ingamePause_do {
 ### OPTIONS MENU ###
 function options {
   menu=(" [Options]" " [+] Controls: $OPTIONS_controls" " [+] PAUSE Key:  $OPTIONS_pauseKey"
-        " [+] Player Character:  $CHAR_player" " [+] Goal Character:  $CHAR_goal" " [~] Return to menu")
+        " [+] Player Character:  $CHAR_player" " [+] Goal Character:  $CHAR_goal" " [+] Enabled Mods: $OPTIONS_mods"
+        " [~] Return to menu")
   call=options_do
 }
 function options_do {
@@ -188,7 +200,14 @@ function options_do {
           sed -i "5s/.*/$tmpvar/" settings.config
           find 'maps' -name '*.map' -exec sed -i "s/$CHAR_goal/$tmpvar/g" {} \;
         fi;;
-      5) mainMenu; return;;
+      5)
+        if [ "$OPTIONS_mods" = "no" ]
+        then
+          sed -i '6s/.*/yes/' settings.config
+        else
+          sed -i '6s/.*/no/' settings.config
+        fi;;
+      6) mainMenu; return;;
   esac
 
   query_options
@@ -242,9 +261,9 @@ function mainMenu {
 }
 function mainMenu_do {
   case $SELECT_menu in
-      1) exitVar="exit";;
+      1) exitVar="play";;
       2) selectMap;;
-      3) source $(dirname $0)/map-maker;;
+      3) map-maker;;
       4) options;;
       5) exit_program;;
   esac
@@ -289,7 +308,6 @@ function gui {
   while true
   do
 
-    exitVar= #reset exitVar
     # Update length
     length=${#menu[@]}
     # "Repair" length var
@@ -334,13 +352,10 @@ function gui {
   done
 }
 
-# START BY GETTING THE OPTIONS
-query_options
-# hide cursor
-tput civis -- invisible
-
-# AT FIRST GUI START THE MAIN MENU WILL POP-UP #
-mainMenu
-# Preset values for main menu
-length=${#menu[@]}
-max=$((length - 1))
+# RESET GUI TO MAIN MENU
+function reset_gui {
+  # Reset exitVar!
+  exitVar=
+  # Reset to open main menu
+  mainMenu
+}

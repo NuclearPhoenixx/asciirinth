@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
-# Import GUI
+# Import Map Maker and GUI
+source $(dirname $0)/map-maker
 source $(dirname $0)/gui
 
-#######################
-#        TO DO        #
-# 1) Mod support      #
-#######################
+# MODS, yay | Only do this if mods are enabled
+if [ "$OPTIONS_mods" = "yes" ]
+then
+  # Only do if mods directory exists
+  if [ -d "$(dirname $0)/mods" ]
+  then
+    for mod in "$(find *.sh)"
+    do
+      source $(dirname $0)/$mod
+    done
+  fi
+fi
 
 
-# OUTPUT THE MAP AND WAIT FOR KEY STROKE
+### OUTPUT THE MAP TO THE SCREEN ###
 function output {
 
   clear
@@ -26,7 +35,7 @@ function output {
 
 }
 
-# THIS MANAGES MOVEMENT AND ALSO BORDERS
+### THIS MANAGES MOVEMENT, BORDERS AND CHECKS IF WON ###
 function input {
 
   placeholder=
@@ -63,7 +72,7 @@ function input {
 
 }
 
-# SET THE OUTPUT VARS FOR FUNCTION OUTPUT() FROM THE READ MAP FILE
+### GET ALL THE RIGHT VARs FOR OUTPUT FUNCTION ###
 function render_map {
 
   local j=0
@@ -85,7 +94,7 @@ function render_map {
 
 }
 
-# LOCATE THE PLAYER ASCII CHARACTER DEFINED IN $CHAR_player
+### LOCATE THE $CHAR_player ###
 function locate_player {
 
   local j=0
@@ -112,7 +121,7 @@ function locate_player {
 
 }
 
-# READ FROM THE VAR $MAPFILE
+### Read the map file into arrays ###
 function read_map {
 
   i=0
@@ -125,48 +134,47 @@ function read_map {
 
 }
 
-function restart {
-  # Get script location for restart
-  #ScriptLoc=$(readlink -f "$0")
-  #exec "$ScriptLoc"
 
-  # TEMP FIX FOR ISSUE #4
-  ./$(basename $0) && exit 0
+############################################
+#####    M A I N    F U N C T I O N    #####
+############################################
+function main {
+  # TRIGGER GUI
+  reset_gui
+  gui
+  # After the GUI finished start the game by preparing the map
+  read_map
+  locate_player
+  render_map
+
+  # After initialization do this endlessly
+  while true
+  do
+
+    output
+    trap "return" SIGINT
+    read -s -n1 control
+    input
+    case $placeholder in
+      win)
+          echo -e "\n$TEXT_won\n"
+          read -r -s -n1
+          return;;
+      escape)
+          ingamePause
+          gui
+          if [ "$exitVar" = "exit" ]
+          then
+            return
+          fi;;
+      *) # ELSE
+          render_map
+          output
+    esac
+  done
 }
 
-
-############################################
-#####  END  OF  FUNCTION  DEFINITIONS  #####
-############################################
-# TRIGGER GUI
-gui
-# After the GUI finished start the game by preparing the map
-read_map
-locate_player
-render_map
-
-# After initialization do this endlessly
 while true
 do
-
-  output
-  trap "restart" SIGINT
-  read -s -n1 control
-  input
-  case $placeholder in
-    win)
-        echo -e "\n\n\033[1;35m ! YOU WIN !${COLOR_reset}\n"
-        read -r -s -n1
-        restart;;
-    escape)
-        ingamePause
-        gui
-        if [ "$exitVar" = "exit" ]
-        then
-          restart
-        fi;;
-    *) # ELSE
-        render_map
-        output
-  esac
+  main
 done
