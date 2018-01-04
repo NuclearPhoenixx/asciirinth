@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+version=1.1.0
+
 # All the core-functionality that does not deal with the core-gameplay.
 # All functions for the GUI to be executed by the game accordingly.
 
@@ -27,9 +29,6 @@
 # 8) Added mod support             #
 ####################################
 
-
-# VERSION CODE
-version=1.1.0
 # Color settings
 COLOR_hint="\033[1;33m"
 COLOR_labyrinth="\033[0;32m"
