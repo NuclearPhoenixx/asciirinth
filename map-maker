@@ -1,6 +1,37 @@
 #!/usr/bin/env bash
 
-function map-maker {
+function original {
+
+  trap "lreturn="kill"; return" SIGINT
+  while true
+  do
+    read -e -p ":: Please specify your text file's full path: " original
+    if [ $original ] && find "$original" >/dev/null 2>&1
+    then
+      return
+    else
+      echo -e "\033[0;31m [!] Not a valid path.\033[0m"
+    fi
+  done
+}
+
+function mapname {
+
+  trap "lreturn="kill"; return" SIGINT
+  while true
+  do
+    read -e -p ":: What name should the map have (no file endings): " mapname
+    if  [ $mapname ]
+    then
+      return
+    else
+      echo -e "\033[0;31m [!] Not a valid map name.\033[0m"
+    fi
+  done
+}
+
+function mapMaker {
+
   clear
   echo -e "\n${COLOR_menuHeader} ASCIIrinth Map Maker${COLOR_reset}\n"
   echo " In order for this to work you need to make a txt file and 'draw' your map with ASCII characters in any external editor."
@@ -10,11 +41,18 @@ function map-maker {
   echo "  *) The goal is defined by the character '*'."
   echo "  *) Accessible places are built with SPACEs."
   echo -e "  *) At the end of the file should be a blank line otherwise it will not load correctly.\n\n"
-  trap "tput civis -- invisible; return" SIGINT
+
   tput cnorm -- normal
-  read -p " Specify your txt file [(PATH/)FILE.txt]: " original
-  read -p " What name should the map have [NAME]: " mapname
+  original
+  mapname
   tput civis -- invisible
+
+  if [ "$lreturn" ]
+  then
+    lreturn=
+    return
+  fi
+
   clear
 
   local mapname="maps/$mapname.map"
@@ -23,7 +61,7 @@ function map-maker {
     mkdir maps
   fi
 
-  # TO-DO: FRESHEN UP THIS CODE AND FIX THE STRANGE MAP CONVERSIONS
+
   local i=
   while IFS= read -r "line"
   do
@@ -42,12 +80,13 @@ function map-maker {
 
   done < "$original"
 
+
   local j=
   while [ "$j" -le "$i" ]
   do
 
     local lines="line$j"
-    if [ $j = 0 ]
+    if ! [ $j ]
     then
       echo "${!lines}" > "$mapname"
     else
