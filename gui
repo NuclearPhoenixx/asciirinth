@@ -59,20 +59,20 @@ TEXT_won="\033[1;35m ! YOU WIN !${COLOR_reset}"
 # CHECK REQUIREMENTS
 if ! [ "${BASH_VERSION:0:1}" -ge 4 ]
 then
-  echo -e "\033[0;31mYou need at least BASH version 4.0 to play this game! \033[0m"
+  echo -e "\033[0;31m!! You need at least BASH version 4.0 to play this game! \033[0m"
   exit 1
 fi
 # CHECK IF SED EXISTS (USED FOR SETTINGS MANAGEMENT)
 sed --help >/dev/null 2>&1 || {
-  echo -e "\033[1;31mError looking for command 'sed'. Unable to start! \033[0m";
+  echo -e "\033[1;31m!! Error looking for command 'sed'. Unable to start! \033[0m";
   exit 1;}
 # CHECK IF FIND UTILS EXISTS (USED FOR INDEXING MAPS)
 find --help >/dev/null 2>&1 || {
-  echo -e "\033[1;31mError looking for command 'find'. Unable to start! \033[0m";
+  echo -e "\033[1;31m!! Error looking for command 'find'. Unable to start! \033[0m";
   exit 1;}
 # CHECK IF GREP EXISTS (USED IN MAP SELECTION)
 grep --help >/dev/null 2>&1 || {
-  echo -e "\033[1;31mError looking for command 'grep'. Unable to start! \033[0m";
+  echo -e "\033[1;31m!! Error looking for command 'grep'. Unable to start! \033[0m";
   exit 1;}
 # CHECK IF SETTINGS FILE EXISTS
 find settings.config >/dev/null 2>&1 || {
@@ -146,7 +146,7 @@ function ingamePause_do {
 
 ### OPTIONS MENU ###
 function options {
-  menu=(" [Options]" " [+] Controls: $OPTIONS_controls" " [+] PAUSE Key:  $OPTIONS_pauseKey"
+  menu=(" [Options]" " [+] Controls: $OPTIONS_controls" " [+] PAUSE Key:  $KEY_escape"
         " [+] Player Character:  $CHAR_player" " [+] Goal Character:  $CHAR_goal" " [+] Enabled Mods: $OPTIONS_mods"
         " [~] Return to menu")
   call=options_do
@@ -175,7 +175,8 @@ function options_do {
           then
               sed -i "2s/.*/$tmpvar/" settings.config
           else
-            echo -e "\033[1;31mYour pause key cannot be one of the control keys! \033[0m"
+            echo -e "\033[1;31m [!] Your pause key cannot be one of the control keys! \033[0m"
+            read -s -n1 -r
           fi
         fi;;
       3)
@@ -241,13 +242,13 @@ function selectMap_do {
       sed -i -e "s/*/$CHAR_goal/g" "maps/$mapSelection"
       sed -i -e "s/O/$CHAR_player/g" "maps/$mapSelection"
     else
-      echo -e "\033[1;31m\n The map file seems broken! Please choose another one.${COLOR_reset}"
+      echo -e "\033[1;31m\n [!] The map file seems broken! Please choose another one.${COLOR_reset}"
       read -n1 -r -s
       return
     fi
 
     sed -i "3s/.*/$mapSelection/" settings.config
-    echo -e "\033[1;32m\n Your default map has been successfully changed to $mapSelection!${COLOR_reset}"
+    echo -e "\033[1;32m\n [✓] Your default map has been successfully changed to $mapSelection!${COLOR_reset}"
     read -n1 -r -s
     query_options
   fi
@@ -263,7 +264,7 @@ function mainMenu_do {
   case $SELECT_menu in
       1) exitVar="play";;
       2) selectMap;;
-      3) map-maker;;
+      3) mapMaker;;
       4) options;;
       5) exit_program;;
   esac
