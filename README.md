@@ -51,6 +51,8 @@ ASCIIrinth does indeed have some requirements. However, those should be absolute
 
 If you're using Linux and didn't strip away half of the system, this will pose no problem for you at all. I don't know about OSX, but I guess there should be no big problems with this either. Windows, yeah... in the best case you have Windows 10, then you can easily use the Linux Subsystem, otherwise you'll need a BASH replacement. If you don't know how to get such a thing, you could, for example, download [git](https://git-scm.com/download/win) - it's a bit overkill but it ships with BASH and works fine with this game (tested it).
 
+---
+
 ## Making Maps
 
 You can easily create maps if you open an editor of your choice, create a new txt file and just type in every character that the map should contain. Every character and line you type will be taken one-to-one into the map file. There are no special characters or anything similar. This also means that the map maker will, in the process of generating the map file, not make any special spacing or converting. After saving the txt file, start the game and head to `'Create Map'`, there you will see all of this information and be able to convert it to the appropriate .map format.
@@ -59,10 +61,16 @@ Once again, this will convert any txt file to a compatible .map file for the gam
 
 **Requirements:**
 
-* The player character is defined by an "O" (capital "o"!).
-* The goal is defined by the character "*".
+* The player character is defined by an `O` (capital `o`!).
+* The goal is defined by the character `*`.
 * Accessible space is created with SPACEs.
 * At the end of the file should be a blank line otherwise it won't load correctly later on.
+
+---
+
+## Modding
+
+To-Do.
 
 ---
 
