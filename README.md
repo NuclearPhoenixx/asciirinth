@@ -64,13 +64,29 @@ Once again, this will convert any txt file to a compatible .map file for the gam
 * The player character is defined by an `O` (capital `o`!).
 * The goal is defined by the character `*`.
 * Accessible space is created with SPACEs.
+* Do not use commas `,` anywhere.
 * At the end of the file should be a blank line otherwise it won't load correctly later on.
 
 ---
 
 ## Modding
 
-To-Do.
+Mods are disabled by default, so if you want to use them, enable them in the game options. Note that all maps
+
+Mods for ASCIIrinth are basically shell (sh) scripts that are being executed after the core elements of the game have been imported.
+So if you plan to make mods for ASCIIrinth, you only need to know shell/BASH basics. You should also get familiar with the game's
+code so that you know which variables can be safely modified - after all it basically comes down to modifying variables.
+
+What can you actually mod for example:
+* Change the standard win message.
+* Most of the colors from the menu and in-game.
+* You could also change settings, although you have to be careful to not break anything.
+* You could theoretically build a whole new menu around the core of the game.
+
+All in all just experiment with the game, you can do much but might also break things if you're not careful. When finished, just save it as `sh` file and upload it anywhere.
+In addition you could also open a pull request with your mod and maybe it'll be included in the game.
+
+In the future, I might also be able to make ASCIIrinth more suitable for modding so stay tuned!
 
 ---
 

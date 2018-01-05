@@ -40,6 +40,7 @@ function mapMaker {
   echo "  *) The player character is defined by an 'O' (capital 'o'!)."
   echo "  *) The goal is defined by the character '*'."
   echo "  *) Accessible places are built with SPACEs."
+  echo "  *) Do not use commas (,) anywhere."
   echo -e "  *) At the end of the file should be a blank line otherwise it will not load correctly.\n\n"
 
   tput cnorm -- normal
