@@ -44,10 +44,11 @@ First things first, there is no such thing as installation. Since this is the ca
 
 ASCIIrinth does indeed have some requirements. However, those should be absolutely no problem on any reasonably up-to-date system (except Windows, duh).
 
-* BASH 4 or above
+* BASH version 4 or above
 * sed
 * find
 * grep
+* wc
 
 If you're using Linux and didn't strip away half of the system, this will pose no problem for you at all. I don't know about OSX, but I guess there should be no big problems with this either. Windows, yeah... in the best case you have Windows 10, then you can easily use the Linux Subsystem, otherwise you'll need a BASH replacement. If you don't know how to get such a thing, you could, for example, download [git](https://git-scm.com/download/win) - it's a bit overkill but it ships with BASH and works fine with this game (tested it).
 

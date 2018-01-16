@@ -1,14 +1,8 @@
 #!/usr/bin/env bash
-version=1.1.0
+version=1.2.0
 
 # All the core-functionality that does not deal with the core-gameplay.
 # All functions for the GUI to be executed by the game accordingly.
-
-####################################
-#              TO-DO               #
-# 1) Credits                       #
-# 2) To-Do comments in code        #
-####################################
 
 # Color settings
 COLOR_hint="\033[1;33m"
@@ -36,24 +30,20 @@ COLOR_reset="\033[0m"
 # Text that shows up when won
 TEXT_won="\033[1;35m ! YOU WIN !${COLOR_reset}"
 
-# CHECK REQUIREMENTS
+### CHECK REQUIREMENTS ###
 if ! [ "${BASH_VERSION:0:1}" -ge 4 ]
 then
   echo -e "\033[0;31m!! You need at least BASH version 4.0 to play this game! \033[0m"
   exit 1
 fi
-# CHECK IF SED EXISTS (USED FOR SETTINGS MANAGEMENT)
-sed --help >/dev/null 2>&1 || {
-  echo -e "\033[1;31m!! Error looking for command 'sed'. Unable to start! \033[0m";
-  exit 1;}
-# CHECK IF FIND UTILS EXISTS (USED FOR INDEXING MAPS)
-find --help >/dev/null 2>&1 || {
-  echo -e "\033[1;31m!! Error looking for command 'find'. Unable to start! \033[0m";
-  exit 1;}
-# CHECK IF GREP EXISTS (USED IN MAP SELECTION)
-grep --help >/dev/null 2>&1 || {
-  echo -e "\033[1;31m!! Error looking for command 'grep'. Unable to start! \033[0m";
-  exit 1;}
+toCheck=("sed" "find" "grep" "wc")
+for check in ${toCheck[@]}
+do
+  "$check" --help>/dev/null 2>&1 || {
+    echo -e "\033[1;31m[!] Error looking for command '$check'. Unable to start! \033[0m";
+    exit 1;
+  }
+done
 # CHECK IF SETTINGS FILE EXISTS
 find settings.config >/dev/null 2>&1 || {
   # if non-existant, write a new settings file with standard values
@@ -61,12 +51,13 @@ find settings.config >/dev/null 2>&1 || {
   echo "p">>settings.config;
   echo "default.map">>settings.config;
   echo "O">>settings.config;
-  echo "*">>settings.config;}
-## END OF TESTS
+  echo "*">>settings.config;
+  echo "no">>settings.config;}
+### END OF TESTS ###
 
 #######################################################
 # FUNCTION DEFINITIONS                                #
-# ALL FUNCTION BEYOND THIS POINT                      #
+# ALL FUNCTIONS BEYOND THIS POINT                     #
 #######################################################
 
 ### LOAD ALL THE OPTIONS ###
@@ -83,7 +74,6 @@ function query_options {
   CHAR_goal=$(sed -n 5p settings.config)
   # Check if mods are enabled
   OPTIONS_mods=$(sed -n 6p settings.config)
-
   # The standard keys to move with
   if [ "$OPTIONS_controls" = "WASD" ]
   then
@@ -124,6 +114,17 @@ function ingamePause_do {
   esac
 }
 
+### CREDITS ###
+function credits {
+  menu=(" [Credits]\n\n ASCIIrinth is made and maintained by Phoenix1747 on Github.\n\n Github: https://github.com/phoenix1747/asciirinth\n IndieDB: http://indiedb.com/games/asciirinth"
+        " [~] Return")
+  call=credits_do
+}
+function credits_do {
+  mainMenu
+  return
+}
+
 ### OPTIONS MENU ###
 function options {
   menu=(" [Options]" " [+] Controls: $OPTIONS_controls" " [+] PAUSE Key:  $KEY_escape"
@@ -133,6 +134,7 @@ function options {
 }
 function options_do {
   local tmpvar= #reset tmpvar for changing input
+  local mapCount=$(ls maps/*.map | wc -l) #prepare this for checking unique char later
   trap "tput civis -- invisible; return" SIGINT
   case $SELECT_menu in
       1)
@@ -164,11 +166,17 @@ function options_do {
         tput cnorm -- normal
         read -p $'\e[1;33m [?] Enter your custom player character: \e[0m' tmpvar
         tput civis -- invisible
-        ## TO-DO: CHECK IF PLAYER CHAR IS REALLY UNIQUE
         if [ "$tmpvar" ]
         then
-          sed -i "4s/.*/$tmpvar/" settings.config
-          find 'maps' -name '*.map' -exec sed -i "s/$CHAR_player/$tmpvar/g" {} \;
+          local unique=$(grep -o "$tmpvar" maps/*.map | wc -l)
+          if [ "$unique" -le "$mapCount" ]
+          then
+            sed -i "4s/.*/$tmpvar/" settings.config
+            find 'maps' -name '*.map' -exec sed -i "s/$CHAR_player/$tmpvar/g" {} \;
+          else
+            echo -e "\033[1;31m [!] Your custom player character is not unique on all of your maps! \033[0m"
+            read -s -n1 -r
+          fi
         fi;;
       4)
         echo -e "\n"
@@ -178,8 +186,15 @@ function options_do {
         ## TO-DO: CHECK IF GOAL CHAR IS REALLY UNIQUE
         if [ "$tmpvar" ]
         then
-          sed -i "5s/.*/$tmpvar/" settings.config
-          find 'maps' -name '*.map' -exec sed -i "s/$CHAR_goal/$tmpvar/g" {} \;
+          local unique=$(grep -o "$tmpvar" maps/*.map | wc -l)
+          if [ "$unique" -le "$mapCount" ]
+          then
+            sed -i "5s/.*/$tmpvar/" settings.config
+            find 'maps' -name '*.map' -exec sed -i "s/$CHAR_goal/$tmpvar/g" {} \;
+          else
+            echo -e "\033[1;31m [!] Your custom goal character is not unique on all of your maps! \033[0m"
+            read -s -n1 -r
+          fi
         fi;;
       5)
         if [ "$OPTIONS_mods" = "no" ]
@@ -226,18 +241,16 @@ function selectMap_do {
       read -n1 -r -s
       return
     fi
-
     sed -i "3s/.*/$mapSelection/" settings.config
     echo -e "\033[1;32m\n [✓] Your default map has been successfully changed to $mapSelection!${COLOR_reset}"
     read -n1 -r -s
     query_options
   fi
-
 }
 
 ### MAIN MENU ###
 function mainMenu {
-  menu=(" ASCIIrinth $version" " [*] Play" " [*] Select Map" " [*] Create Map" " [*] Options" " [~] Exit")
+  menu=(" ASCIIrinth $version" " [*] Play" " [*] Select Map" " [*] Create Map" " [*] Options" " [*] Credits" " [~] Exit")
   call=mainMenu_do
 }
 function mainMenu_do {
@@ -246,7 +259,8 @@ function mainMenu_do {
       2) selectMap;;
       3) mapMaker;;
       4) options;;
-      5) exit_program;;
+      5) credits;;
+      6) exit_program;;
   esac
 }
 

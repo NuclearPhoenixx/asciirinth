@@ -2,7 +2,7 @@
 
 function original {
 
-  trap "lreturn="kill"; return" SIGINT
+  trap "lreturn='kill'; return" SIGINT
   while true
   do
     read -e -p ":: Please specify your text file's full path: " original
@@ -17,7 +17,7 @@ function original {
 
 function mapname {
 
-  trap "lreturn="kill"; return" SIGINT
+  trap "lreturn='kill'; return" SIGINT
   while true
   do
     read -e -p ":: What name should the map have (no file endings): " mapname
@@ -33,15 +33,15 @@ function mapname {
 function mapMaker {
 
   clear
-  echo -e "\n${COLOR_menuHeader} ASCIIrinth Map Maker${COLOR_reset}\n"
+  echo -e "\n${COLOR_menuHeader} [ASCIIrinth Map Maker]${COLOR_reset}\n"
   echo " In order for this to work you need to make a txt file and 'draw' your map with ASCII characters in any external editor."
   echo " This will convert it to a compatible .map file for the game. Your map will be shown exactly like you specified it to look like."
   echo -e  "\n Requirements:"
-  echo "  *) The player character is defined by an 'O' (capital 'o'!)."
-  echo "  *) The goal is defined by the character '*'."
-  echo "  *) Accessible places are built with SPACEs."
-  echo "  *) Do not use commas (,) anywhere."
-  echo -e "  *) At the end of the file should be a blank line otherwise it will not load correctly.\n\n"
+  echo "  [*] The player character is defined by an 'O' (capital 'o'!)."
+  echo "  [*] The goal is defined by the character '*'."
+  echo "  [*] Accessible places are built with SPACEs."
+  echo "  [*] Do not use commas (,) anywhere."
+  echo -e "  [*] At the end of the file should be a blank line otherwise it will not load correctly.\n\n"
 
   tput cnorm -- normal
   original
@@ -105,5 +105,4 @@ function mapMaker {
     echo -e "\n\033[1;31m An error occured. Please try again later.\033[0m\n"
   fi
   read -s -n1 -p " Press any key to continue..."
-
 }

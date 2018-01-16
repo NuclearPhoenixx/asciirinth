@@ -14,7 +14,7 @@ then
   then
     for mod in "$(find mods/*.sh)"
     do
-      source $(dirname $0)/$mod
+      source "$(dirname $0)/$mod"
     done
   fi
 fi
@@ -34,7 +34,7 @@ function output {
     ((j++))
 
   done
-  echo -e " ${COLOR_hint}Get to the '$CHAR_goal' to complete this map!${COLOR_reset}"
+  echo -e "${COLOR_hint} Get to the '$CHAR_goal' to complete this map!${COLOR_reset}"
 
 }
 
@@ -61,7 +61,6 @@ function input {
     *) return;;
   esac
 
-  #PlayerPosition="array$CHAR_Y[$CHAR_X]"
   local nextPosition="array$moveToY[$moveToX]"
   case ${!nextPosition} in
     "$CHAR_goal")
@@ -162,6 +161,7 @@ function main {
       win)
           echo -e "\n$TEXT_won\n"
           read -r -s -n1
+          reset_gui
           return;;
       escape)
           ingamePause
