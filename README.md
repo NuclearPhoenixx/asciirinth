@@ -88,7 +88,3 @@ All in all just experiment with the game, you can do much but might also break t
 In addition you could also open a pull request with your mod and maybe it'll be included in the game.
 
 In the future, I might also be able to make ASCIIrinth more suitable for modding so stay tuned!
-
----
-
-2017, Phoenix1747.
